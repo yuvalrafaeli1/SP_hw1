@@ -60,7 +60,7 @@ def kmeansMAIN(input_data,iter,k):
             else:
                 updated=calc_sum(groupvec[centroidi][1],vectors[i])
                 groupvec[centroidi][1]=updated
-        pervius=[[centroids[a][b] for b in range(len(centroids[it])) for a in range(len(centroids))]] # not shure about it
+        pervius=[[centroids[a][b] for b in range(len(centroids[a]))] for a in range(len(centroids))] # not shure about it
         for z in range(k):
             centroids[z]=divide(groupvec[z][1], groupvec[z][0])
 
@@ -82,14 +82,12 @@ if len(args)==3:
         print("Invalid number of clusters!")
     if not(args[1].isdigit):
         print("Invalid maximum iteration!")
-    if (args[1].isdigit) and (args[1]<=1 or args[1]>=1000):
-        print("Invalid maximum iteration!")
+    if (args[1].isdigit):
+        if(int(args[1])<=1 or int(args[1])>=1000):
+            print("Invalid maximum iteration!")
     kmeansMAIN(args[2], int(args[1]),int(args[0]))
 
 if len(args)==2:
     if not(args[0].isdigit):
         print("Invalid number of clusters!")
-    kmeansMAIN(args[2], defultiter,int(args[0])) 
-
-
-
+    kmeansMAIN(args[1], defultiter,int(args[0])) 
