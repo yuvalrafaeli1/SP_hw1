@@ -1,22 +1,18 @@
 import sys
 
-def calc_sum(list1, list2):   # A function that returns the sum of two vectors
-    summation = []
-    for i in range(len(list1)):
-        summation.append(list1[i] + list2[i])
-    return summation
-def divide(vector, num):  # dividing all elements in a vector
-    for i in range(len(vector)):
-        vector[i] = vector[i]/num
-    return vector
 
 def differenceV1V2(v1,v2): #Calculates distance between two vectors
     diffarray = [(v1[i]-v2[i]) for i in range(len(v2))]
     finaldiff=0
     for j in range(len(v1)):
         finaldiff+=pow(diffarray[j],2)
-    return finaldiff    
-
+    return finaldiff   
+ 
+def sum(l1, l2): 
+    arr = []
+    for a in range(len(l1)):
+        arr.append(l1[a] + l2[a])
+    return arr
 def Dmin(centroidslist,v): #Calculates the closest cluster to a certain vector
     closecluster=0
     MINdis=differenceV1V2(v,centroidslist[0])
@@ -26,6 +22,10 @@ def Dmin(centroidslist,v): #Calculates the closest cluster to a certain vector
             MINdis=dis
             closecluster=j
     return closecluster
+def D(v, n): 
+    for a in range(len(v)):
+        v[a] = v[a]/n
+    return v
 
 def kmeansMAIN(input_data,iter,k):
     e=0.001
@@ -58,11 +58,11 @@ def kmeansMAIN(input_data,iter,k):
                 for q in range(len(vectors[i])):
                     groupvec[centroidi][1].append(vectors[i][q])
             else:
-                updated=calc_sum(groupvec[centroidi][1],vectors[i])
+                updated=sum(groupvec[centroidi][1],vectors[i])
                 groupvec[centroidi][1]=updated
         pervius=[[centroids[a][b] for b in range(len(centroids[a]))] for a in range(len(centroids))] # not shure about it
         for z in range(k):
-            centroids[z]=divide(groupvec[z][1], groupvec[z][0])
+            centroids[z]=D(groupvec[z][1], groupvec[z][0])
 
         for z in range(k):
             if differenceV1V2(centroids[z],pervius[z])> e:
