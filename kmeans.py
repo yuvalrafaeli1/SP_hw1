@@ -80,14 +80,18 @@ defultiter=200
 if len(args)==3:
     if not(args[0].isdigit):
         print("Invalid number of clusters!")
+        sys.exit()
     if not(args[1].isdigit):
         print("Invalid maximum iteration!")
+        sys.exit()
     if (args[1].isdigit):
         if(int(args[1])<=1 or int(args[1])>=1000):
             print("Invalid maximum iteration!")
+            sys.exit()
     kmeansMAIN(args[2], int(args[1]),int(args[0]))
 
 if len(args)==2:
     if not(args[0].isdigit):
         print("Invalid number of clusters!")
+        sys.exit()
     kmeansMAIN(args[1], defultiter,int(args[0])) 
