@@ -1,0 +1,104 @@
+import math
+import numpy as np
+import pandas as pd
+import sys
+
+
+
+def join_files(f1, f2):
+    df1 = pd.read_csv(f1, header=None)
+    df2 = pd.read_csv(f2, header=None)
+
+    # Determine the number of dimensions
+    d1 = len(df1.columns) - 1
+    d2 = len(df2.columns) - 1
+    # Set the column names for df1
+    columns1 = ['Key'] + [f'Coordinate{i}' for i in range(1, d1 + 1)]
+    df1.columns = columns1
+
+    # Set the column names for df2
+    columns2 = ['Key'] + [f'Coordinate{i}' for i in range(1, d2 + 1)]
+    df2.columns = columns2
+
+    # Merge the DataFrames based on the 'Key' column
+    merged_df = pd.merge(df1, df2, on='Key').sort_values('Key')
+    merged_df = merged_df.drop(columns=['Key', merged_df.columns[0]])
+    merged_list = merged_df.to_numpy()
+    return merged_list
+
+def get_start_centroids(vec_list, k): #getting the k starting centroids
+    d = len(vec_list[0])
+    all_nums = np.arange(len(vec_list))
+    a = np.random.randint(len(vec_list)-1)
+    centroids = [a]
+    for i in range (k-1):
+        p = calc_prob_list(centroids, vec_list)
+        new_vec = np.random.choice(all_nums,p=p)
+        centroids.append(new_vec)
+    return centroids
+
+def calc_prob_list(cent, vec_list): #calculating the proporsional probability list
+    prob = np.zeros(len(vec_list))
+    total = 0.0
+    for i in range(len(vec_list)):
+        curr_min = min_dist(vec_list[i], cent, vec_list)
+        prob[i]= curr_min
+        total+= curr_min
+    for i in range(len(vec_list)):
+        prob[i] = prob[i]/total
+    return prob
+
+def min_dist(vec, cent, vec_list): #calculating the minimal distance from vector to all centroids
+    min = calc_distance(vec, vec_list[cent[0]])
+    for i in range(len(cent)-1):
+        temp = calc_distance(vec, vec_list[cent[i+1]])
+        if (temp<min):
+            min = temp
+    return min
+
+
+def calc_distance(v1, v2):  # Calculates distance between two vectors
+    total = 0.0
+    for i in range(len(v2)):
+        temp = v1[i] - v2[i]
+        total += pow(temp, 2)
+    return math.sqrt(total)
+
+
+#MAIN:
+np.random.seed(0)
+args = sys.argv
+args = args[1:]
+
+if (len(args)>5 or len(args)<4):
+    print("An Error Has Occurred")
+    sys.exit()
+if len(args) == 5:
+    if not (args[0].isdigit):
+        print("Invalid number of clusters!")
+        sys.exit()
+    if not (args[1].isdigit):
+        print("Invalid maximum iteration!")
+        sys.exit()
+    if (int(args[1]) <= 1 or int(args[1]) >= 1000):
+        print("Invalid maximum iteration!")
+        sys.exit()
+    vec_list = join_files(args[3], args[4])
+    eps = float(args[2])
+    iter = int(args[1])
+
+if len(args) == 4:
+    if not (args[0].isdigit):
+        print("Invalid number of clusters!")
+        sys.exit()
+    vec_list = join_files(args[2], args[3])
+    eps = float(args[1])
+    iter = 300
+
+if (int(args[0])>= len(vec_list)):
+    print("Invalid number of clusters!")
+    sys.exit()
+
+starting_centroids = get_start_centroids(vec_list, int(args[0]))
+
+print(starting_centroids)
