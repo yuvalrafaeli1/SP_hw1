@@ -100,5 +100,9 @@ if (int(args[0])>= len(vec_list)):
     sys.exit()
 
 starting_centroids = get_start_centroids(vec_list, int(args[0]))
+centroids_vec=[]
+for i in range(len(starting_centroids)):
+    centroids_vec.append(vec_list[starting_centroids[i]])
 
 print(starting_centroids)
+print(centroids_vec)
