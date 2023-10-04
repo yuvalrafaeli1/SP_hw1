@@ -40,7 +40,7 @@ data_list, d, N = get_data(args[2])
 goal = args[1]
 
 if (goal=="symnmf"):
-    W = symc.norm(data_list)
+    W = symc.norm(data_list, N, d)
     H = initial_H(N, k, W)
     result = symc.symnmf(W, H, N ,d, k)
 elif (goal=="sym"):
