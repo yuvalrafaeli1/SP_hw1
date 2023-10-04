@@ -3,21 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void printM(int N1, int N2, double **A) /*print matrix for me*/
-{ 
-    int a;
-    int b;
-    for (a = 0; a < N1; a++) 
-    {
-        for (b = 0; b< N2- 1; b++) 
-        {
-            printf("%.4f,", A[a][b]);
-        }
-        printf("%.4f", A[a][N2 - 1]); /*without the ,*/
-        printf("\n");
-    }
-}
-
 void error()
 {
         fprintf (stderr, "An Error Has Occurred!\n");
@@ -122,7 +107,7 @@ double **ddg(double **X, int N, int d)
     return D;
 }
 
-double **mat_multiply_plus(double **A_mat, double **B_mat,int row1,int column1 ,int column2,int P)/*p=0 => normal , p=1 => with colm+row*/
+double **MATmultMAT(double **A_mat, double **B_mat,int row1,int column1 ,int column2,int P)/*p=0 => normal , p=1 => with colm+row*/
 {
     int i, j, z;
     int N;
@@ -248,8 +233,8 @@ double **norm(double **X,int N, int d)
         D2[a][a]=D1[a][a];
     }
     /*fill W*/
-    mult=mat_multiply_plus(D1,matsym1,N,0,0,0);
-    W=mat_multiply_plus(mult,D2,N,0,0,0);
+    mult=MATmultMAT(D1,matsym1,N,0,0,0);
+    W=MATmultMAT(mult,D2,N,0,0,0);
     freefree(D);
     freefree(matsym1);
     freefree(matsym2);
@@ -341,9 +326,9 @@ double **symnmf(double **W, double **H0, int N, int d, int k)
     /*update H*/
     while (iterr < max && con == 0)
     {
-        WmultH0= mat_multiply_plus(W,H0,N,N,k,1);
-        H0multH0T= mat_multiply_plus(H0,H0T,N,k,N,1);
-        H0multH0TmultH0= mat_multiply_plus(H0multH0T,H0,N,N,k,1);
+        WmultH0= MATmultMAT(W,H0,N,N,k,1);
+        H0multH0T= MATmultMAT(H0,H0T,N,k,N,1);
+        H0multH0TmultH0= MATmultMAT(H0multH0T,H0,N,N,k,1);
         /*cal H1*/
         for(a=0;a<N;a++)
         {
@@ -403,6 +388,21 @@ int dcount(FILE *F)
     while (c != '\n');
     rewind(F);
     return dim;
+}
+
+void printM(int N1, int N2, double **A) /*print matrix for me*/
+{ 
+    int a;
+    int b;
+    for (a = 0; a < N1; a++) 
+    {
+        for (b = 0; b< N2- 1; b++) 
+        {
+            printf("%.4f,", A[a][b]);
+        }
+        printf("%.4f", A[a][N2 - 1]); /*without the ,*/
+        printf("\n");
+    }
 }
 
 int main(int argc, char *argv[]) 
