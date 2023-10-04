@@ -1,4 +1,5 @@
-/*symnmf.h: C header file*/
+#ifndef SYMNMF.H
+#define SYMNMF.H
 void error();
 static void freefree(double **xrr, int N);
 static double caldistance(double *vec1, double *vec2, int dd);
@@ -12,3 +13,4 @@ double **symnmf(double **W, double **H0, int N, int d, int k);
 int Ncount(FILE *F);
 int dcount(FILE *F);
 void printM(int N1, int N2, double **A); /*print matrix for me*/
+#endif
