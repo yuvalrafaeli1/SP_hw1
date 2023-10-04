@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "symnmf.h"
 
 void error()
 {
@@ -107,71 +108,71 @@ double **ddg(double **X, int N, int d)
     return D;
 }
 
-double **MATmultMAT(double **A_mat, double **B_mat,int row1,int column1 ,int column2,int P)/*p=0 => normal , p=1 => with colm+row*/
+double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => normal , p=1 => with colm+row*/
 {
-    int i, j, z;
+    int a, b, c;
     int N;
-    double **resultMat;
+    double **mult;
     if (p==0)
     {
-        N=row1;
-        resultMat = (double **) malloc(N * sizeof(double*));
-        if(resultMat==NULL)
+        N=r1;
+        mult = (double **) malloc(N * sizeof(double*));
+        if(mult==NULL)
         {
             error();
             return NULL;
         }
-        for (i = 0; i < N; i++) 
+        for (a = 0; a < N; a++) 
         {
-            resultMat[i] = (double *) malloc(N * sizeof(double));
-            if(resultMat[i]==NULL)
+            mult[a] = (double *) malloc(N * sizeof(double));
+            if(mult[a]==NULL)
             {
                 error();
                 return NULL;
             }
         }
-        for (i = 0; i < N; i++) 
+        for (a= 0; a < N; a++) 
         {
-            for (j = 0; j < N; j++) 
+            for (b = 0; b< N; b++) 
             {
-                resultMat[i][j] = 0;
-                for (z = 0; z < N; z++) 
+                mult[a][b] = 0;/*important to avoid errors*/
+                for (c= 0; c< N; c++) 
                 {
-                    resultMat[i][j] += A_mat[i][z] * B_mat[z][j];
+                    mult[a][b] += X[a][c] * Y[c][b];
                 }
             }
         }
-        return resultMat;
+        return mult;
     }
     else
     {
-        resultMat = (double **) malloc(row1 * sizeof(double*));
-        if(resultMat==NULL)
+        mult = (double **) malloc(r1 * sizeof(double*));
+        if(mult==NULL)
         {
             error();
             return NULL; 
         }
-        for (i = 0; i < row1; i++) 
+        for (a = 0; a < r1; a++) 
         {
-            resultMat[i] = (double *) malloc(column2 * sizeof(double));
-            if(resultMat[i]==NULL)
+            mult[a] = (double *) malloc(c2 * sizeof(double));
+            if(mult[a]==NULL)
             {
                 error();
                 return NULL;  
             }
         }
-        for (i = 0; i < row1; i++)
+        for (a = 0; a< r1; a++)
         {
-            for (j = 0; j < column2; j++) 
+            for (b = 0; b < c2; b++) 
             {
-                resultMat[i][j] = 0;
-                for (z = 0; z < column1; z++) 
+                mult[a][b] = 0;/*to avoid errors*/
+                for (c = 0; c < c1; c++) 
                 {
-                    resultMat[i][j] += A_mat[i][z] * B_mat[z][j];
+                    mult[a][b] += X[a][c] * Y[c][b];
                 }
             } 
         }
-        return resultMat;
+        return mult;
     }
     
 }
@@ -233,8 +234,8 @@ double **norm(double **X,int N, int d)
         D2[a][a]=D1[a][a];
     }
     /*fill W*/
-    mult=MATmultMAT(D1,matsym1,N,0,0,0);
-    W=MATmultMAT(mult,D2,N,0,0,0);
+    mult=MATmultMAT(D1,matsym1,N,0,0,0);/*normal*/
+    W=MATmultMAT(mult,D2,N,0,0,0);/*normal*/
     freefree(D);
     freefree(matsym1);
     freefree(matsym2);
@@ -295,7 +296,7 @@ double Pause_mode(double **H1,double **H2,int N, int k)
 double **symnmf(double **W, double **H0, int N, int d, int k)
 {
     double e= 1*exp(-4);
-    double beta=0.5;
+    double bb=0.5;
     double helpp;
     int max=300;
     int a;
@@ -334,7 +335,7 @@ double **symnmf(double **W, double **H0, int N, int d, int k)
         {
             for(b=0;b<k;b++)
             {
-                helpp= 1 - beta + (beta*(WmultH0[a][b]/H0multH0TmultH0[a][b]));
+                helpp= 1 - bb + (bb*(WmultH0[a][b]/H0multH0TmultH0[a][b]));
                 H1[a][b]=H0[a][b]*helpp;
             }
         }
