@@ -304,7 +304,7 @@ double Pause_mode(double **H1,double **H2,int N, int k)
     
 }
 
-double **symnmf(double **X, double **H0, int N, int d, int k)
+double **symnmf(double **W, double **H0, int N, int d, int k)
 {
     double e= 1*exp(-4);
     double beta=0.5;
@@ -315,12 +315,10 @@ double **symnmf(double **X, double **H0, int N, int d, int k)
     int iterr=0;
     int con=0;
     double **H1;
-    double **W;
     double **WmultH0;
     double **H0multH0T;
     double **H0multH0TmultH0;
     double **H0T;
-    W=norm(X,N,d);
     H0T=AtoAT(H0,N);
     H1 = (double **) malloc(N * sizeof(double*));
     if(H1==NULL)
