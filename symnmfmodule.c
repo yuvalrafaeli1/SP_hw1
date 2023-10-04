@@ -1,5 +1,10 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include "assert.h"
 #include "symnmf.h"
 
 static void freefree(double **xrr, int l){
