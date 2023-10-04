@@ -189,7 +189,7 @@ double **norm(double **X,int N, int d)
     double **mult;
     matsym1=sym(X,N,d);
     matsym2=sym(X,N,d);/*instead of copy it*/
-    D=ddg(matsym2,N,d);
+    D=ddg(X,N,d);
     /*cal D1,d2 => D pow -1\2*/
     D1 = (double **) malloc(PointCount * sizeof(double*));
     if(D1==NULL)
