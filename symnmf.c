@@ -3,14 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-void print_matrix(double **matrix, int row, int col) { /*print the matrix for me only*/
-    int i, j;
-    for (i = 0; i < row; i++) {
-        for (j = 0; j < col - 1; j++) {
-            printf("%.4f,", matrix[i][j]);
+void printM(int N1, int N2, double **A) /*print matrix for me*/
+{ 
+    int a;
+    int b;
+    for (a = 0; a < N1; a++) 
+    {
+        for (b = 0; b< N2- 1; b++) 
+        {
+            printf("%.4f,", A[a][b]);
         }
-
-        printf("%.4f", matrix[i][col - 1]);
+        printf("%.4f", A[a][N2 - 1]); /*without the ,*/
         printf("\n");
     }
 }
@@ -368,4 +371,146 @@ double **symnmf(double **W, double **H0, int N, int d, int k)
     return  H1;
 }
 
-/*without the main and calc the dimension and pointsnumber */
+int Ncount(FILE *F) 
+{
+    int N = 0;
+    char c;
+    while (!feof(F)) 
+    {
+        c = fgetc(F);
+        if (c == '\n')
+        {
+            N++;
+        }
+    }
+    rewind(F);
+    return N;
+}
+
+int dcount(FILE *F)
+{
+    int dim = 0;
+    char c;
+    dim ++;
+    do
+    {
+        c = fgetc(F);
+        if (c == ',')
+        {
+            dim ++;
+        }
+    }
+    while (c != '\n');
+    rewind(F);
+    return dim;
+}
+
+int main(int argc, char *argv[]) 
+{
+    char *filename;
+    char *goal;
+    if (argc != 3)
+    {
+        error();
+        return 0;
+    }
+    goal = argv[1];
+    filename = argv[2];
+    if (strcmp(goal, "sym")!=0
+        && strcmp(goal, "ddg")!=0
+        && strcmp(goal, "norm")!=0)
+    {
+        error();
+        return 0;
+    }
+    int a;
+    int b;
+    FILE *f = NULL;
+    int N;
+    int d;
+    int neg=0;
+    double num1=0;
+    double num2=0;
+    double after=0;
+    int powafter=1;
+    double resnum;
+    char c;
+    double **X;
+    f = fopen(filename, "r");
+    if (f == NULL) 
+    {
+        error();
+        return 0;
+    }
+    d = dcount(f);
+    N = Ncount(f);
+    X = (double **) malloc(N * sizeof(double *));
+    for (a = 0; a< (int)N; a++) 
+    {
+        X[a] = (double *) malloc( d* sizeof(double));
+    }
+    for (a = 0; a < (int)N; a++) 
+    {
+        for (b = 0; b < d; b++) 
+        {
+            neg = 0;
+            num2 = 0;
+            /*calc the num before the . */
+            while ((c = fgetc(f)) != '.' && c != EOF) 
+            {
+                num1 = 1;
+                if (c == '-') 
+                {
+                    neg = 1;
+                } 
+                else 
+                {
+                    num2 = num2*10;
+                    num1 = num1 * (double) c;
+                    num2 += num1;
+                    num1 = num2;
+                }
+
+            }
+            /*calc the num after the .*/
+            while ((c = fgetc(f)) != EOF && c != ',' && c != '\n') 
+            {
+                after = after + ( (double) c  * pow(10, powafter * (-1)) );
+                powafter ++;
+            }
+            resnum = num1 + after;
+            if (neg == 1) 
+            {
+                resnum = (-1) * resnum;
+            }
+            X[a][b] = resnum;
+        }
+    }
+    fclose(f);
+    if(X== NULL)
+    {
+        return 0;
+    }
+    /*from file*/
+    int casee=0;
+    double **finall=NULL;
+    if(strcmp(goal, "sym") == 0) {casee = 1;}
+    if(strcmp(goal, "ddg") == 0) {casee = 2;}
+    if(strcmp(goal, "norm") == 0) {casee = 3;}
+    switch(casee)
+    {
+        case 1:
+            finall=sym(X,N,d);
+            printM(N,N,finall); 
+            break;
+        case 2:
+            finall=DDG(X,N,d);
+            printM(N,N,finall); 
+            break;
+        case 3:
+           finall=norm(X,N,d);
+            printM(N,N,finall); 
+            break;
+    }
+    return 0;
+}
