@@ -295,9 +295,8 @@ double Pause_mode(double **H1,double **H2,int N, int k)
 
 double **symnmf(double **W, double **H0, int N, int d, int k)
 {
-    double e= 1*exp(-4);
+    double e= 1*exp(-6);
     double bb=0.5;
-    double helpp;
     int max=300;
     int a;
     int b;
