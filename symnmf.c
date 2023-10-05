@@ -335,12 +335,11 @@ double **symnmf(double **W, double **H0, int N, int d, int k)
         {
             for(b=0;b<k;b++)
             {
-                helpp= 1 - bb + (bb*(WmultH0[a][b]/H0multH0TmultH0[a][b]));
-                H1[a][b]=H0[a][b]*helpp;
+                H1[a][b]=H0[a][b]*(1.0 - bb + (bb*(WmultH0[a][b]/H0multH0TmultH0[a][b])));
             }
         }
         /*check the condition*/
-        if(Pause_mode(H0,H1,N,k)>e)
+        if(Pause_mode(H0,H1,N,k)<e)
         {
             con=1;
         }
