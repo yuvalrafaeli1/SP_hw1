@@ -4,7 +4,7 @@
 #include <string.h>
 #include "symnmf.h"
 
-void error()
+void errorC()
 {
         fprintf (stderr, "An Error Has Occurred!\n");
         exit(1);
@@ -41,7 +41,7 @@ double **symC(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4
     A = (double **) malloc(N * sizeof(double *));
     if(A == NULL)
     {
-        error();
+        errorC();
         return NULL;
     }
     for (a = 0; a < N; a++) 
@@ -49,7 +49,7 @@ double **symC(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4
         A[a] = (double *) malloc(N * sizeof(double));
         if(A[a]==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
     }
@@ -59,8 +59,6 @@ double **symC(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4
         {
             if (a != b)
             {
-                /*printf("%f", caldistance(X[a], X[b], d) / (-2.0));*/
-                /*printf("%f", exp(caldistance(X[a], X[b], d) / (-2.0)));*/
                 A[a][b] = exp(caldistance(X[a], X[b], d) / (-2.0));
                 val=A[a][b];
                 A[b][a] = val;
@@ -85,7 +83,7 @@ double **ddgC(double **X, int N, int d)
     D = (double **) malloc(N * sizeof(double *));
     if(D == NULL)/*not sure*/
     {
-        error();
+        errorC();
         return NULL;
     }
     for (a = 0; a < N ; a++) 
@@ -93,7 +91,7 @@ double **ddgC(double **X, int N, int d)
         D[a] = (double *) calloc(N, sizeof(double));
         if(D[a]==NULL)/*not sure*/
         {
-            error();
+            errorC();
             return NULL;
         }
     }
@@ -122,7 +120,7 @@ double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => 
         mult = (double **) malloc(N * sizeof(double*));
         if(mult==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
         for (a = 0; a < N; a++) 
@@ -130,7 +128,7 @@ double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => 
             mult[a] = (double *) malloc(N * sizeof(double));
             if(mult[a]==NULL)
             {
-                error();
+                errorC();
                 return NULL;
             }
         }
@@ -152,7 +150,7 @@ double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => 
         mult = (double **) malloc(r1 * sizeof(double*));
         if(mult==NULL)
         {
-            error();
+            errorC();
             return NULL; 
         }
         for (a = 0; a < r1; a++) 
@@ -160,7 +158,7 @@ double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => 
             mult[a] = (double *) malloc(c2 * sizeof(double));
             if(mult[a]==NULL)
             {
-                error();
+                errorC();
                 return NULL;  
             }
         }
@@ -198,13 +196,13 @@ double **normC(double **X,int N, int d)
     D1 = (double **) malloc(N * sizeof(double*));
     if(D1==NULL)
     {
-        error();
+        errorC();
         return NULL;
     }
     D2 = (double **) malloc(N * sizeof(double*));
     if(D2==NULL)
     {
-        error();
+        errorC();
         return NULL;
     }
     for (a = 0; a <N; a++) 
@@ -212,13 +210,13 @@ double **normC(double **X,int N, int d)
         D1[a] = (double *) malloc(N * sizeof(double));
         if(D1[a]==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
         D2[a] = (double *) malloc(N * sizeof(double));
         if(D2[a]==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
     }
@@ -256,7 +254,7 @@ double **AtoAT(double** A,int N)
     AT=(double **) malloc(N * sizeof(double *));
     if(AT == NULL)
     {
-        error();
+        errorC();
         return NULL;
     }
     for (a = 0; a < N; a++) 
@@ -264,7 +262,7 @@ double **AtoAT(double** A,int N)
         AT[a] = (double *) malloc(N * sizeof(double));
         if(AT[a]==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
     }
@@ -298,7 +296,7 @@ double Pause_mode(double **H1,double **H2,int N, int k)
 
 double **symnmfC(double **W, double **H0, int N, int k)
 {
-    double e= 1*exp(-6);
+    double e= 0.0001;
     double bb=0.5;
     int max=300;
     int a;
@@ -314,7 +312,7 @@ double **symnmfC(double **W, double **H0, int N, int k)
     H1 = (double **) malloc(N * sizeof(double*));
     if(H1==NULL)
     {
-        error();
+        errorC();
         return NULL;
     }
     for (a = 0; a < N; a++) 
@@ -322,7 +320,7 @@ double **symnmfC(double **W, double **H0, int N, int k)
         H1[a] = (double *) malloc(k * sizeof(double));
         if(H1[a]==NULL)
         {
-            error();
+            errorC();
             return NULL;
         }
     }
@@ -330,6 +328,7 @@ double **symnmfC(double **W, double **H0, int N, int k)
     while (iterr < max && con == 0)
     {
         WmultH0= MATmultMAT(W,H0,N,N,k,1);
+        H0T = AtoAT(H0,N);
         H0multH0T= MATmultMAT(H0,H0T,N,k,N,1);
         H0multH0TmultH0= MATmultMAT(H0multH0T,H0,N,N,k,1);
         /*cal H1*/
@@ -391,7 +390,7 @@ int main(int argc, char *argv[])
     N=0;
     if (argc != 3)
     {
-        error();
+        errorC();
         exit(1);
     }
     goal = argv[1];
@@ -400,13 +399,13 @@ int main(int argc, char *argv[])
         && strcmp(goal, "ddg")!=0
         && strcmp(goal, "norm")!=0)
     {
-        error();
+        errorC();
     }
 
     f = fopen(filename, "r");
     if (f == NULL) 
     {
-        error();
+        errorC();
     }
     while ((c = fgetc(f)) != EOF){ 
         if (c == '\n'){
@@ -431,7 +430,7 @@ int main(int argc, char *argv[])
     fclose(f);
     if(X== NULL)
     {
-        error();
+        errorC();
     }
 
     /*from file*/
