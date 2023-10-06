@@ -69,8 +69,7 @@ double **symC(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4
             }
         }
     }
-    return A;
-}
+    return A;}
 
 double **ddgC(double **X, int N, int d) 
 {
