@@ -414,7 +414,6 @@ int main(int argc, char *argv[])
         return 0;
     }
     goal = argv[1];
-    filename = argv[2];
     if (strcmp(goal, "sym")!=0
         && strcmp(goal, "ddg")!=0
         && strcmp(goal, "norm")!=0)
@@ -422,20 +421,21 @@ int main(int argc, char *argv[])
         error();
         return 0;
     }
+    filename = argv[2];
     int a;
     int b;
     FILE *f = NULL;
     int N;
     int d;
-    int neg=0;
+    int neg;
     double num1=0;
-    double num2=0;
-    double after=0;
+    double num2;
+    double after;
     int powafter=1;
     double resnum;
     char c;
     double **X;
-    f = fopen(filename, "r");
+    f = fopen(filename, "rt");
     if (f == NULL) 
     {
         error();
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
             neg = 0;
             num2 = 0;
             /*calc the num before the . */
-            while ((c = fgetc(f)) != '.' && c != EOF) 
+            while (!feof(f) && (c = fgetc(f)) != '.' && c != EOF) 
             {
                 num1 = 1;
                 if (c == '-') 
@@ -472,6 +472,8 @@ int main(int argc, char *argv[])
 
             }
             /*calc the num after the .*/
+            after=0;
+            powafter=1;
             while ((c = fgetc(f)) != EOF && c != ',' && c != '\n') 
             {
                 after = after + ( (double) c  * pow(10, powafter * (-1)) );
