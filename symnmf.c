@@ -184,13 +184,11 @@ double **normC(double **X,int N, int d)
     int b;
     double **matsym1;
     double **D;
-    double **matsym2;
     double **W;
     double **D1;
     double **D2;
     double **mult;
     matsym1=symC(X,N,d);
-    matsym2=symC(X,N,d);/*instead of copy it*/
     D=ddgC(X,N,d);
     /*cal D1,d2 => D pow -1\2*/
     D1 = (double **) malloc(N * sizeof(double*));
@@ -239,25 +237,23 @@ double **normC(double **X,int N, int d)
     W=MATmultMAT(mult,D2,N,0,0,0);/*normal*/
     freefree(D, N);
     freefree(matsym1, N);
-    freefree(matsym2, N);
     free(D);
     free(matsym1);
-    free(matsym2);
     return W;
 }
 
-double **AtoAT(double** A,int N)
+double **AtoAT(double** A,int N,int k)
 {
     double **AT;
     int a;
     int b;
-    AT=(double **) malloc(N * sizeof(double *));
+    AT=(double **) malloc(k * sizeof(double *));
     if(AT == NULL)
     {
         errorC();
         return NULL;
     }
-    for (a = 0; a < N; a++) 
+    for (a = 0; a < k; a++) 
     {
         AT[a] = (double *) malloc(N * sizeof(double));
         if(AT[a]==NULL)
@@ -266,7 +262,7 @@ double **AtoAT(double** A,int N)
             return NULL;
         }
     }
-    for(a=0;a<N;a++)
+    for(a=0;a<k;a++)
     {
         for(b=0;b<N;b++)
         {
@@ -308,7 +304,7 @@ double **symnmfC(double **W, double **H0, int N, int k)
     double **H0multH0T;
     double **H0multH0TmultH0;
     double **H0T;
-    H0T=AtoAT(H0,N);
+    H0T=AtoAT(H0,N,k);
     H1 = (double **) malloc(N * sizeof(double*));
     if(H1==NULL)
     {
@@ -328,7 +324,7 @@ double **symnmfC(double **W, double **H0, int N, int k)
     while (iterr < max && con == 0)
     {
         WmultH0= MATmultMAT(W,H0,N,N,k,1);
-        H0T = AtoAT(H0,N);
+        H0T = AtoAT(H0,N,k);
         H0multH0T= MATmultMAT(H0,H0T,N,k,N,1);
         H0multH0TmultH0= MATmultMAT(H0multH0T,H0,N,N,k,1);
         /*cal H1*/
@@ -354,9 +350,9 @@ double **symnmfC(double **W, double **H0, int N, int k)
         }
         iterr++;
     }
+
     return  H1;
 }
-
 
 void printM(int N1, int N2, double **A) /*print matrix for me*/
 { 
