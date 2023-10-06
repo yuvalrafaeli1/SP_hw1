@@ -245,9 +245,6 @@ static PyObject* symnmf(PyObject* self, PyObject *args)
         return NULL;
     if (!PyList_Check(pythonH))
         return NULL;
-    W = (double **) malloc(N * sizeof(double *));
-    H = (double **) malloc(N * sizeof(double *));
-   
     if (W == NULL)
     {
         error();
@@ -258,6 +255,9 @@ static PyObject* symnmf(PyObject* self, PyObject *args)
         error();
         return NULL;
     }
+    W = (double **) malloc(N * sizeof(double *));
+    H = (double **) malloc(N * sizeof(double *));
+   
 
     /*fill W from python*/
     for (a = 0; a < N; a++) 
