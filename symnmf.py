@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 import sys
-import symnmf as symc
+import symnmfM as symc
 
 def get_data(f):
     df = pd.read_csv(f, header=None)
@@ -32,6 +32,7 @@ args = sys.argv
 args = args[1:]
 
 if (len(args)!=3):
+    print("1")
     print("An Error Has Occurred")
     sys.exit()
 
@@ -42,7 +43,7 @@ goal = args[1]
 if (goal=="symnmf"):
     W = symc.norm(data_list, N, d)
     H = initial_H(N, k, W)
-    result = symc.symnmf(W, H, N ,d, k)
+    result = symc.symnmf(W, H, N, d , k)
 elif (goal=="sym"):
     result = symc.sym(data_list, N, d)
 elif (goal=="ddg"):
@@ -50,6 +51,7 @@ elif (goal=="ddg"):
 elif (goal=="norm"):
     result = symc.norm(data_list, N, d)
 else:
+    print("2")
     print("An Error Has Occurred")
     sys.exit()
 
@@ -57,8 +59,5 @@ else:
 for num in result:
     print(",".join(str("{:.4f}".format(round(x, 4))) for x in num))
 
-
-
-#################################
 
 
