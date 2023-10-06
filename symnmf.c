@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "symnmf.h"
-
 void errorC()
 {
         fprintf (stderr, "An Error Has Occurred!\n");
