@@ -7,6 +7,7 @@
 void error()
 {
         fprintf (stderr, "An Error Has Occurred!\n");
+        exit(1);
 }
 
 static void freefree(double **xrr, int N)
@@ -31,11 +32,11 @@ static double caldistance(double *vec1, double *vec2, int dd)
     return dis;
 }
 
-double **sym(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4,....,cd)*/
+double **symC(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4,....,cd)*/
 {
     int a;
     int b;
-    int val;
+    double val;
     double **A;
     A = (double **) malloc(N * sizeof(double *));
     if(A == NULL)
@@ -58,27 +59,29 @@ double **sym(double **X, int N, int d) /*X={x1,x2,x3,.....xn} , xi=(c1,c2,c3,c4,
         {
             if (a != b)
             {
+                /*printf("%f", caldistance(X[a], X[b], d) / (-2.0));*/
+                /*printf("%f", exp(caldistance(X[a], X[b], d) / (-2.0)));*/
                 A[a][b] = exp(caldistance(X[a], X[b], d) / (-2.0));
                 val=A[a][b];
                 A[b][a] = val;
             }
             else 
             {
-                A[a][b] = 0;
+                A[a][b] = 0.0;
             }
         }
     }
     return A;
 }
 
-double **ddg(double **X, int N, int d) 
+double **ddgC(double **X, int N, int d) 
 {
     int a;
     int b;
     double **matsym;
     double **D;
     double di;
-    matsym = sym(X, N, d);
+    matsym = symC(X, N, d);
     D = (double **) malloc(N * sizeof(double *));
     if(D == NULL)/*not sure*/
     {
@@ -101,9 +104,9 @@ double **ddg(double **X, int N, int d)
         {
             di += matsym[a][b];
         }
-        D[i][i]=di;
+        D[a][a]=di;
     }
-    freefree(matsym);
+    freefree(matsym, N);
     free(matsym);
     return D;
 }
@@ -177,7 +180,7 @@ double **MATmultMAT(double **X, double **Y,int r1,int c1 ,int c2,int p)/*p=0 => 
     
 }
 
-double **norm(double **X,int N, int d)
+double **normC(double **X,int N, int d)
 {
     int a;
     int b;
@@ -188,17 +191,17 @@ double **norm(double **X,int N, int d)
     double **D1;
     double **D2;
     double **mult;
-    matsym1=sym(X,N,d);
-    matsym2=sym(X,N,d);/*instead of copy it*/
-    D=ddg(X,N,d);
+    matsym1=symC(X,N,d);
+    matsym2=symC(X,N,d);/*instead of copy it*/
+    D=ddgC(X,N,d);
     /*cal D1,d2 => D pow -1\2*/
-    D1 = (double **) malloc(PointCount * sizeof(double*));
+    D1 = (double **) malloc(N * sizeof(double*));
     if(D1==NULL)
     {
         error();
         return NULL;
     }
-    D2 = (double **) malloc(PointCount * sizeof(double*));
+    D2 = (double **) malloc(N * sizeof(double*));
     if(D2==NULL)
     {
         error();
@@ -236,9 +239,9 @@ double **norm(double **X,int N, int d)
     /*fill W*/
     mult=MATmultMAT(D1,matsym1,N,0,0,0);/*normal*/
     W=MATmultMAT(mult,D2,N,0,0,0);/*normal*/
-    freefree(D);
-    freefree(matsym1);
-    freefree(matsym2);
+    freefree(D, N);
+    freefree(matsym1, N);
+    freefree(matsym2, N);
     free(D);
     free(matsym1);
     free(matsym2);
@@ -293,7 +296,7 @@ double Pause_mode(double **H1,double **H2,int N, int k)
     
 }
 
-double **symnmf(double **W, double **H0, int N, int d, int k)
+double **symnmfC(double **W, double **H0, int N, int k)
 {
     double e= 1*exp(-6);
     double bb=0.5;
@@ -355,39 +358,6 @@ double **symnmf(double **W, double **H0, int N, int d, int k)
     return  H1;
 }
 
-int Ncount(FILE *F) 
-{
-    int N = 0;
-    char c;
-    while (!feof(F)) 
-    {
-        c = fgetc(F);
-        if (c == '\n')
-        {
-            N++;
-        }
-    }
-    rewind(F);
-    return N;
-}
-
-int dcount(FILE *F)
-{
-    int dim = 0;
-    char c;
-    dim ++;
-    do
-    {
-        c = fgetc(F);
-        if (c == ',')
-        {
-            dim ++;
-        }
-    }
-    while (c != '\n');
-    rewind(F);
-    return dim;
-}
 
 void printM(int N1, int N2, double **A) /*print matrix for me*/
 { 
@@ -408,108 +378,78 @@ int main(int argc, char *argv[])
 {
     char *filename;
     char *goal;
-    if (argc != 3)
-    {
-        error();
-        return 0;
-    }
-    goal = argv[1];
-    if (strcmp(goal, "sym")!=0
-        && strcmp(goal, "ddg")!=0
-        && strcmp(goal, "norm")!=0)
-    {
-        error();
-        return 0;
-    }
-    filename = argv[2];
     int a;
     int b;
     FILE *f = NULL;
     int N;
     int d;
-    int neg;
-    double num1=0;
-    double num2;
-    double after;
-    int powafter=1;
-    double resnum;
     char c;
     double **X;
-    f = fopen(filename, "rt");
+    int casee=0;
+    double **finall=NULL;
+    d=1;
+    N=0;
+    if (argc != 3)
+    {
+        error();
+        exit(1);
+    }
+    goal = argv[1];
+    filename = argv[2];
+    if (strcmp(goal, "sym")!=0
+        && strcmp(goal, "ddg")!=0
+        && strcmp(goal, "norm")!=0)
+    {
+        error();
+    }
+
+    f = fopen(filename, "r");
     if (f == NULL) 
     {
         error();
-        return 0;
     }
-    d = dcount(f);
-    N = Ncount(f);
-    X = (double **) malloc(N * sizeof(double *));
-    for (a = 0; a< (int)N; a++) 
-    {
-        X[a] = (double *) malloc( d* sizeof(double));
+    while ((c = fgetc(f)) != EOF){ 
+        if (c == '\n'){
+            N++;
+        }
+        else if ((c==',') && (N==0)){
+            d++;
+        }
     }
-    for (a = 0; a < (int)N; a++) 
-    {
-        for (b = 0; b < d; b++) 
-        {
-            neg = 0;
-            num2 = 0;
-            /*calc the num before the . */
-            while (!feof(f) && (c = fgetc(f)) != '.' && c != EOF) 
+    rewind(f);
+    X = malloc(N*sizeof(double*));
+    for (a=0; a<N; a++){
+        X[a] = malloc(d*sizeof(double));
+        for (b=0; b<d; b++){
+            if (fscanf(f, "%lf,", &X[a][b]) != 1)
             {
-                num1 = 1;
-                if (c == '-') 
-                {
-                    neg = 1;
-                } 
-                else 
-                {
-                    num2 = num2*10;
-                    num1 = num1 * (double) c;
-                    num2 += num1;
-                    num1 = num2;
-                }
-
+                printf("An Error Has Occured");
+                exit(1);
             }
-            /*calc the num after the .*/
-            after=0;
-            powafter=1;
-            while ((c = fgetc(f)) != EOF && c != ',' && c != '\n') 
-            {
-                after = after + ( (double) c  * pow(10, powafter * (-1)) );
-                powafter ++;
-            }
-            resnum = num1 + after;
-            if (neg == 1) 
-            {
-                resnum = (-1) * resnum;
-            }
-            X[a][b] = resnum;
         }
     }
     fclose(f);
     if(X== NULL)
     {
-        return 0;
+        error();
     }
+
     /*from file*/
-    int casee=0;
-    double **finall=NULL;
     if(strcmp(goal, "sym") == 0) {casee = 1;}
     if(strcmp(goal, "ddg") == 0) {casee = 2;}
     if(strcmp(goal, "norm") == 0) {casee = 3;}
     switch(casee)
     {
         case 1:
-            finall=sym(X,N,d);
+            finall=symC(X,N,d);
             printM(N,N,finall); 
             break;
         case 2:
-            finall=DDG(X,N,d);
+            finall=ddgC(X,N,d);
             printM(N,N,finall); 
             break;
         case 3:
-           finall=norm(X,N,d);
+           finall=normC(X,N,d);
             printM(N,N,finall); 
             break;
     }
