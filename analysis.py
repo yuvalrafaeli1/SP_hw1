@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 import sys
-import symnmf as symc
+import symnmfM as symc
 from sklearn.metrics import silhouette_score
 
 def get_data(f):
@@ -134,7 +134,7 @@ index_kmeans = get_centroids_index_kmeans(kmeans(data_list,300, k), data_list)
 kmeans_silhouette = silhouette_score(data_list, index_kmeans, metric='euclidean')
 nmf_silhouette = silhouette_score(data_list, index_nmf, metric='euclidean')
 
-print("nmf: " + nmf_silhouette)
-print("kmeans: " + kmeans_silhouette)
 
+print("nmf: ", f"{nmf_silhouette:.4f}")
+print("kmeans: ", f"{kmeans_silhouette:.4f}")
 
